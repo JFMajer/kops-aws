@@ -1,0 +1,35 @@
+aws s3api create-bucket --bucket kops-dev-heheszlo-com-state-store --region eu-north-1 --profile kops --create-bucket-configuration LocationConstraint=eu-north-1
+
+export NAME=kops-dev.heheszlo.com
+export KOPS_STATE_STORE=s3://kops-dev-heheszlo-com-state-store
+export AWS_PROFILE=kops         
+export AWS_REGION=eu-north-1
+export CP_SIZE="t3.small"
+export WORKER_SIZE="t3.medium"
+
+
+kops create cluster \
+    --name=${NAME} \
+    --cloud=aws \
+    --zones=eu-north-1a \
+    --node-size="$WORKER_SIZE" \
+    --control-plane-size="$CP_SIZE" \
+    --state=s3://kops-dev-heheszlo-com-state-store \
+    --discovery-store=s3://kops-dev-heheszlo-com-oidc-store/${NAME}/discovery
+    
+    
+    
+kops edit ig nodes-eu-north-1a --name ${NAME}
+kops edit ig control-plane-eu-north-1a --name ${NAME}
+    
+kops update cluster --name ${NAME} --yes --admin
+
+kops delete cluster --name ${NAME} --yes
+
+git clone https://github.com/JFMajer/kops-aws && cd kops-aws
+chmod +x tools.sh
+./tools.sh
+
+kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+helm install prom-stack prometheus-community/kube-prometheus-stack --set grafana.service.type=LoadBalancer
+helm install fluent-bit fluent/fluent-bit
