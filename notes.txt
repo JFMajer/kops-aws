@@ -1,5 +1,28 @@
 aws s3api create-bucket --bucket kops-dev-heheszlo-com-state-store --region eu-north-1 --profile kops --create-bucket-configuration LocationConstraint=eu-north-1
 
+aws s3api put-public-access-block \
+    --bucket kops-dev-heheszlo-com-oidc-store \
+    --public-access-block-configuration BlockPublicAcls=false,IgnorePublicAcls=false,BlockPublicPolicy=false,RestrictPublicBuckets=false --profile kops
+aws s3api put-bucket-acl \
+    --bucket kops-dev-heheszlo-com-oidc-store \
+    --acl public-read --profile kops
+
+    
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "PublicReadGetObject",
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": "s3:GetObject",
+      "Resource": "arn:aws:s3:::kops-dev-heheszlo-com-oidc-store/*"
+    }
+  ]
+}
+
+
+
 export NAME=kops-dev.heheszlo.com
 export KOPS_STATE_STORE=s3://kops-dev-heheszlo-com-state-store
 export AWS_PROFILE=kops         
