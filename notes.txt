@@ -41,7 +41,6 @@ kops create cluster \
     --discovery-store=s3://kops-dev-heheszlo-com-oidc-store/${NAME}/discovery
     
     
-    
 kops edit ig nodes-eu-north-1a --name ${NAME}
 kops edit ig control-plane-eu-north-1a --name ${NAME}
     
@@ -56,3 +55,8 @@ chmod +x tools.sh
 kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
 helm install prom-stack prometheus-community/kube-prometheus-stack --set grafana.service.type=LoadBalancer
 helm install fluent-bit fluent/fluent-bit
+
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "LoadBalancer"}}'
+argocd admin initial-password -n argocd
+
