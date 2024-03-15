@@ -5,17 +5,12 @@ metadata:
   namespace: argocd
 spec:
   destination:
-    name: ''
     namespace: observability
     server: 'https://kubernetes.default.svc'
   source:
-    path: ''
     repoURL: 'https://fluent.github.io/helm-charts'
-    targetRevision: 0.44.0
-    directory:
-      recurse: true
-    chart: fluent/fluent-bit
-  sources: []
+    targetRevision: '0.43.0'
+    chart: fluent-bit
   project: default
   syncPolicy:
     automated:
