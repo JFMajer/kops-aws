@@ -2,7 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: fluentbit
-  namespace: observability
+  namespace: argocd
 spec:
   destination:
     name: ''
