@@ -16,7 +16,7 @@ spec:
       recurse: true
     chart: fluent/fluent-bit
   sources: []
-  project: ''
+  project: default
   syncPolicy:
     automated:
       prune: true
