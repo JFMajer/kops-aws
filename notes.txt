@@ -45,8 +45,14 @@ kops edit ig nodes-eu-north-1a --name ${NAME}
 kops edit ig control-plane-eu-north-1a --name ${NAME}
     
 kops update cluster --name ${NAME} --yes --admin
+kops validate cluster --wait 10m
 
+kops edit cluster --name ${NAME}
+kops rolling-update cluster
 kops delete cluster --name ${NAME} --yes
+
+helm repo add eks https://aws.github.io/eks-charts
+helm install aws-load-balancer-controller eks/aws-load-balancer-controller --set clusterName=${NAME} -n kube-system
 
 git clone https://github.com/JFMajer/kops-aws && cd kops-aws
 chmod +x tools.sh
@@ -56,7 +62,20 @@ kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/late
 helm install prom-stack prometheus-community/kube-prometheus-stack --set grafana.service.type=LoadBalancer
 helm install fluent-bit fluent/fluent-bit
 
+kubectl create namespace argocd
 kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "LoadBalancer"}}'
+kubectl patch svc argocd-server -n argocd -p '{"spec": {"loadBalancerClass": "service.k8s.aws/nlb"}}'
+kubectl annotate svc argocd-server -n argocd service.beta.kubernetes.io/aws-load-balancer-nlb-target-type=instance
 argocd admin initial-password -n argocd
 
+spec:
+  certManager:
+    enabled: true
+    managed: false
+
+
+
+spec:
+  awsLoadBalancerController:
+    enabled: true
