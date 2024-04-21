@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: guestbook-app
+  namespace: guestbook
+spec:
+  destination:
+    namespace: guestbook
+    server: 'https://kubernetes.default.svc'
+  source:
+    repoURL: 'https://github.com/JFMajer/kops-aws.git'
+    targetRevision: HEAD
+    path: ./declarative/manifests/guestbook
+  project: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
